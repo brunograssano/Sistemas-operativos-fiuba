@@ -75,9 +75,16 @@ int obtener_pipes(int *fd_padre, int *fd_hijo){
     return resultado;
 }
 
+void cerrar_fd(const int fd){
+  int resultado = close(fd);
+  if(resultado < 0){
+      fprintf(stderr,"Ocurrio un error cerrando un fd. PID: %d - errno: %s\n",getpid(),strerror(errno));
+  }
+}
+
 void cerrar_canales(const int fd_lectura,const int fd_escritura){
-    close(fd_lectura);
-    close(fd_escritura);
+    cerrar_fd(fd_lectura);
+    cerrar_fd(fd_escritura);
 }
 
 /* PRE y POST CONDICIONES
