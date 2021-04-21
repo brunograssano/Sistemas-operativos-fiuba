@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -12,9 +13,6 @@
 #define ERROR -1
 #define POSICION_NUMERO 1
 
-const int TERMINAR_PIPE = -1;
-int preparar_filtrado_de_numeros(const int fd_izquierdo[2]);
-
 void revisar_bytes(const int bytes) {
     if (bytes!=0 && bytes != sizeof(int)){
         fprintf(stderr,"No se envio/leyo la cantidad correcta de bytes. Se esperaban %lu, se obtuvieron %d\n",sizeof(int),bytes);
@@ -25,37 +23,23 @@ void revisar_bytes(const int bytes) {
 /* PRE y POST CONDICIONES
  * El file descriptor de escritura es valido.
  */
-void escribir(const int fd_escritura,const int valor){
-    int bytes = write(fd_escritura,&valor,sizeof(int));
-    revisar_bytes(bytes);
+int escribir(const int fd_escritura,const int valor){
+    int bytes_escritos = write(fd_escritura,&valor,sizeof(int));
+    revisar_bytes(bytes_escritos);
+    return bytes_escritos;
 }
 
 /* PRE y POST CONDICIONES
  * El file descriptor de lectura es valido.
  */
-void leer(const int fd_lectura, int* valor){
-    int bytes = read(fd_lectura,valor,sizeof(int));
-    revisar_bytes(bytes);
-}
-
-bool cerro_pipe(const int numero){
-    return numero == TERMINAR_PIPE;
+int leer(const int fd_lectura, int* valor){
+    int bytes_leidos = read(fd_lectura,valor,sizeof(int));
+    revisar_bytes(bytes_leidos);
+    return bytes_leidos;
 }
 
 void mostrar_primo(const int primo){
     printf("primo %d\n",primo);
-}
-
-bool hay_que_crear_nuevo_filtro(const bool hay_filtro_nuevo,const int numero){
-  return !hay_filtro_nuevo && !cerro_pipe(numero);
-}
-
-bool hay_que_terminar(const bool hay_error,const bool termino_ciclo){
-  return hay_error || termino_ciclo;
-}
-
-bool puedo_mandar_al_siguiente_filtro(const bool hay_error,const bool hay_filtro_nuevo) {
-    return !hay_error && hay_filtro_nuevo;
 }
 
 int obtener_numero_final(const int cantidad_argumentos,char* argumentos[]){
@@ -77,7 +61,7 @@ int crear_fork(){
 int crear_pipe(int fd_pipe[2]){
     int resultado = pipe(fd_pipe);
     if(resultado < 0){
-        fprintf(stderr,"Ocurrio un error creando el pipe. PID: %d - errno: %s\n",getpid(),strerror(errno));
+        fprintf(stderr,"Ocurrio un error creando un pipe. PID: %d - errno: %s\n",getpid(),strerror(errno));
     }
     return resultado;
 }
@@ -92,60 +76,30 @@ int obtener_primo(const int fd_lectura){
     return primo;
 }
 
-/* PRE y POST CONDICIONES
- * Creara un nuevo filtro, el file descriptor correspondiente viene valido.
- * Dejara tambien el ciclo viejo del filtro nuevo terminado.
- */
-void crear_filtro(const int fd_derecha[2], bool *hay_error, bool *hay_filtro_nuevo, bool *termino_ciclo) {
-    int resultado = crear_fork();
-    if (resultado < 0) {
-        (*hay_error) = true;
-    }
-    if (resultado == 0) {
-        preparar_filtrado_de_numeros(fd_derecha);
-        (*termino_ciclo) = true;
-    }else if(!(*hay_error)){
-        close(fd_derecha[LECTURA]);
-        (*hay_filtro_nuevo) = true;
-    }
+void cerrar_fd(const int fd){
+  int resultado = close(fd);
+  if(resultado < 0){
+      fprintf(stderr,"Ocurrio un error cerrando un fd. PID: %d - errno: %s\n",getpid(),strerror(errno));
+  }
 }
 
-/* PRE y POST CONDICIONES
- * El file descriptor de lectura correspondiente a la izquierda y los del siguiente nodo(derecha) vienen validos.
- * Aplicara el algoritmo de la criba de Eratostenes (pensado como filtro).
- */
-bool filtrar_numeros(const int fd_lectura, const int fd_derecha[2]) {
-    bool hay_error = false, hay_filtro_nuevo = false, termino_ciclo = false;
-    int primo = obtener_primo(fd_lectura);
-    int numero;
-    leer(fd_lectura, &numero);
-    while(!hay_que_terminar(hay_error,termino_ciclo)){
-        if(numero % primo != 0){
-            if(hay_que_crear_nuevo_filtro(hay_filtro_nuevo,numero)){
-                crear_filtro(fd_derecha, &hay_error, &hay_filtro_nuevo, &termino_ciclo);
-            }
-            if(puedo_mandar_al_siguiente_filtro(hay_error, hay_filtro_nuevo)){
-                escribir(fd_derecha[ESCRITURA],numero);
-            }
-        }
-        if(!hay_que_terminar(hay_error,termino_ciclo)){
-            if(cerro_pipe(numero)){
-                termino_ciclo = true;
-            }
-            else{
-                leer(fd_lectura, &numero);
-            }
-        }
-    }
+bool puedo_mandar_al_siguiente_filtro(const bool hay_error,const bool hay_filtro_nuevo,const bool termino_ciclo) {
+    return !hay_error && hay_filtro_nuevo && !termino_ciclo;
+}
 
-    return hay_filtro_nuevo;
+bool se_puede_leer(const int fd_lectura,int* numero,const bool hay_error,const bool termino_ciclo){
+  if(termino_ciclo || hay_error){
+    return false;
+  }
+  int bytes_leidos = leer(fd_lectura,numero);
+  return bytes_leidos > 0;
 }
 
 /* PRE y POST CONDICIONES
  * Recibe los file descriptors del nodo(proceso) izquierdo en estado valido.
  */
-int preparar_filtrado_de_numeros(const int fd_izquierdo[2]){
-    close(fd_izquierdo[ESCRITURA]);
+int filtrar_numeros(const int fd_izquierdo[2]){
+    cerrar_fd(fd_izquierdo[ESCRITURA]);
 
     int fd_derecha[2];
     int resultado = crear_pipe(fd_derecha);
@@ -153,43 +107,65 @@ int preparar_filtrado_de_numeros(const int fd_izquierdo[2]){
         return resultado;
     }
 
-    bool hubo_filtro_nuevo = filtrar_numeros(fd_izquierdo[LECTURA], fd_derecha);
-
-    if(!hubo_filtro_nuevo){
-        close(fd_derecha[LECTURA]);
+    bool hay_error = false, hay_filtro_nuevo = false, termino_ciclo = false;
+    bool es_padre = false;
+    int numero;
+    int primo = obtener_primo(fd_izquierdo[LECTURA]);
+    while(se_puede_leer(fd_izquierdo[LECTURA],&numero,hay_error,termino_ciclo)){
+        if(numero % primo != 0){
+            if(!hay_filtro_nuevo){
+                int resultado = crear_fork();
+                if (resultado < 0) {
+                    hay_error = true;
+                }
+                if (resultado == 0) {
+                    cerrar_fd(fd_izquierdo[LECTURA]);
+                    hay_filtro_nuevo = true;
+                    termino_ciclo = true;
+                    filtrar_numeros(fd_derecha);
+                }else if(!hay_error){
+                    cerrar_fd(fd_derecha[LECTURA]);
+                    hay_filtro_nuevo = true;
+                    es_padre = true;
+                }
+            }
+            if(puedo_mandar_al_siguiente_filtro(hay_error, hay_filtro_nuevo, termino_ciclo)){
+                escribir(fd_derecha[ESCRITURA],numero);
+            }
+        }
     }
-    close(fd_derecha[ESCRITURA]);
-    close(fd_izquierdo[LECTURA]);
+
+    if(!hay_filtro_nuevo){
+        cerrar_fd(fd_derecha[LECTURA]);
+        cerrar_fd(fd_derecha[ESCRITURA]);
+        cerrar_fd(fd_izquierdo[LECTURA]);
+    }
+    else if(es_padre){
+        cerrar_fd(fd_derecha[ESCRITURA]);
+        cerrar_fd(fd_izquierdo[LECTURA]);
+    }
+
+    wait(NULL);
 
     return 0;
 }
-
-/* PRE y POST CONDICIONES
- * Necesita de un file descriptor de escritura valido.
- * Si se cumple, enviara a la serie de filtros el valor indicado,
- * esperando un tiempo para que los otros procesos lo procesen correctamente.
- */
-void enviar_a_la_cadena(const int fd_escritura,const int valor){
-    escribir(fd_escritura,valor);
-    usleep(3);
-}
-
 
 /* PRE y POST CONDICIONES
  * Necesita de file descriptors validos para el pipe y de un valor final valido.
  * Cumpliendo esto, generara la serie de numeros entera hasta el valor indicado.
  */
 int generar_numeros(const int fd_derecho[2],const int numero_final){
-    close(fd_derecho[LECTURA]);
+    cerrar_fd(fd_derecho[LECTURA]);
 
     int i = 2;
     while (i<=numero_final){
-        enviar_a_la_cadena(fd_derecho[ESCRITURA],i);
+        escribir(fd_derecho[ESCRITURA],i);
         i++;
     }
-    enviar_a_la_cadena(fd_derecho[ESCRITURA],TERMINAR_PIPE);
+    cerrar_fd(fd_derecho[ESCRITURA]);
 
-    close(fd_derecho[ESCRITURA]);
+    wait(NULL);
+
     return 0;
 }
 
@@ -211,7 +187,7 @@ int iniciar_cadena(const int numero_final){
     }
 
     if(resultado == 0){
-        resultado = preparar_filtrado_de_numeros(fd_pipe);
+        resultado = filtrar_numeros(fd_pipe);
     }else{
         resultado = generar_numeros(fd_pipe,numero_final);
     }
