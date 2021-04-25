@@ -40,6 +40,7 @@ int leer(const int fd_lectura, int* valor){
 
 void mostrar_primo(const int primo){
     printf("primo %d\n",primo);
+    fflush(stdout);
 }
 
 int obtener_numero_final(const int cantidad_argumentos,char* argumentos[]){
@@ -104,6 +105,7 @@ int filtrar_numeros(const int fd_izquierdo[2]){
     int fd_derecha[2];
     int resultado = crear_pipe(fd_derecha);
     if(resultado < 0){
+        cerrar_fd(fd_izquierdo[LECTURA]);
         return resultado;
     }
 
@@ -118,12 +120,13 @@ int filtrar_numeros(const int fd_izquierdo[2]){
                 if (resultado < 0) {
                     hay_error = true;
                 }
-                if (resultado == 0) {
+                else if (resultado == 0) {
                     cerrar_fd(fd_izquierdo[LECTURA]);
                     hay_filtro_nuevo = true;
                     termino_ciclo = true;
                     filtrar_numeros(fd_derecha);
-                }else if(!hay_error){
+                }
+                else{
                     cerrar_fd(fd_derecha[LECTURA]);
                     hay_filtro_nuevo = true;
                     es_padre = true;
@@ -158,7 +161,7 @@ int generar_numeros(const int fd_derecho[2],const int numero_final){
     cerrar_fd(fd_derecho[LECTURA]);
 
     int i = 2;
-    while (i<=numero_final){
+    while(i<=numero_final){
         escribir(fd_derecho[ESCRITURA],i);
         i++;
     }
@@ -197,7 +200,7 @@ int iniciar_cadena(const int numero_final){
 
 int main(int argc,char* argv[]) {
     int numero_final = obtener_numero_final(argc,argv);
-    if (numero_final < 2){
+    if(numero_final < 2){
         fprintf(stderr, "No se envio un numero valido.\n");
         return ERROR;
     }

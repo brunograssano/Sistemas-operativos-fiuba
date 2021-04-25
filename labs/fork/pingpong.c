@@ -37,6 +37,7 @@ void mostrar_mensajes_iniciales(const int fd_padre[2],const int fd_hijo[2]){
     printf("Hola, soy PID %d:\n",getpid());
     printf(" - pipe me devuelve: [%d, %d]\n",fd_padre[LECTURA],fd_padre[ESCRITURA]);
     printf(" - pipe me devuelve: [%d, %d]\n",fd_hijo[LECTURA],fd_hijo[ESCRITURA]);
+    fflush(stdout);
 }
 
 void imprimir_mensaje_padre_inicial(const int fd_escritura,const int valor_envio,const int resultado_fork){
@@ -45,6 +46,7 @@ void imprimir_mensaje_padre_inicial(const int fd_escritura,const int valor_envio
     printf(" - getppid me devuelve: %d\n",getppid());
     printf(" - random me devuelve: %d\n",valor_envio);
     printf(" - envio valor %d a través de fd=%d\n",valor_envio,fd_escritura);
+    fflush(stdout);
 }
 
 void imprimir_mensajes_hijo(const int fd_lectura,const int fd_escritura,const int valor){
@@ -53,14 +55,23 @@ void imprimir_mensajes_hijo(const int fd_lectura,const int fd_escritura,const in
     printf(" - getppid me devuelve: %d\n",getppid());
     printf(" - recibo valor %d vía fd=%d\n",valor,fd_lectura);
     printf(" - reenvío valor en fd=%d y termino\n",fd_escritura);
+    fflush(stdout);
 }
 
 void imprimir_mensaje_final(const int fd_lectura,const int valor,const int resultado_fork){
     printf("Hola, de nuevo PID %d:\n",resultado_fork);
     printf(" - recibí valor %d vía fd=%d\n",valor,fd_lectura);
+    fflush(stdout);
 }
 
-int obtener_pipes(int *fd_padre, int *fd_hijo){
+void cerrar_fd(const int fd){
+    int resultado = close(fd);
+    if(resultado < 0){
+        fprintf(stderr,"Ocurrio un error cerrando un fd. PID: %d - errno: %s\n",getpid(),strerror(errno));
+    }
+}
+
+int obtener_pipes(int fd_padre[2], int fd_hijo[2]){
     int resultado = pipe(fd_padre);
     if(resultado < 0){
         fprintf(stderr,"Ha ocurrido un error creando el pipe del padre. errno: %s\n",strerror(errno));
@@ -69,17 +80,10 @@ int obtener_pipes(int *fd_padre, int *fd_hijo){
     resultado = pipe(fd_hijo);
     if(resultado < 0){
         fprintf(stderr,"Ha ocurrido un error creando el pipe del hijo. errno: %s\n",strerror(errno));
-        close(fd_padre[LECTURA]);
-        close((fd_padre[ESCRITURA]));
+        cerrar_fd(fd_padre[LECTURA]);
+        cerrar_fd((fd_padre[ESCRITURA]));
     }
     return resultado;
-}
-
-void cerrar_fd(const int fd){
-  int resultado = close(fd);
-  if(resultado < 0){
-      fprintf(stderr,"Ocurrio un error cerrando un fd. PID: %d - errno: %s\n",getpid(),strerror(errno));
-  }
 }
 
 void cerrar_canales(const int fd_lectura,const int fd_escritura){
