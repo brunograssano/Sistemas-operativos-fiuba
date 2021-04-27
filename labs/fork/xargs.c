@@ -11,7 +11,6 @@
 #define LUGAR_NULL_FINAL 1
 #define ERROR -1
 #define MAX_LINEA 512
-
 #ifndef NARGS
 #define NARGS 4
 #endif
@@ -40,6 +39,36 @@ void limpiar_argumentos(char* argumentos[]){
     }
 }
 
+void ejecutar_xargs(char *argv[]) {
+    char linea[MAX_LINEA] = {};
+    char* argumentos[LARGO_ARGUMENTOS] = {NULL};
+    int argumentos_leidos = 0;
+
+    argumentos[0] = argv[POS_COMANDO];
+    
+    int bytes_leidos = fscanf(stdin,"%[^\n]\n",linea);
+    while(bytes_leidos > 0){
+        argumentos[argumentos_leidos + LUGAR_COMANDO] = strdup(linea);
+        if(argumentos[argumentos_leidos] == NULL){
+            fprintf(stderr,"Ocurrio un error alocando memoria para el argumento: %s - errno: %s\n",linea,strerror(errno));
+        }
+        else{
+            argumentos_leidos++;
+        }
+
+        if(argumentos_leidos == NARGS){
+            ejecutar_comando(argv[POS_COMANDO], argumentos);
+            limpiar_argumentos(argumentos);
+            argumentos_leidos = 0;
+        }
+        bytes_leidos = fscanf(stdin,"%[^\n]\n",linea);
+    }
+    if(argumentos_leidos > 0){
+        ejecutar_comando(argv[POS_COMANDO], argumentos);
+        limpiar_argumentos(argumentos);
+    }
+}
+
 int main(int argc, char* argv[]){
 
     if(argc == 1){
@@ -52,33 +81,7 @@ int main(int argc, char* argv[]){
         return ERROR;
     }
 
-    char linea[MAX_LINEA] = {};
-    char* argumentos[LARGO_ARGUMENTOS] = {NULL};
-    char* linea_leida = linea;
-
-    argumentos[0] = argv[POS_COMANDO];
-    int argumentos_leidos = 0;
-    int bytes_leidos = fscanf(stdin,"%[^\n]\n",linea_leida);
-    while(bytes_leidos > 0){
-        argumentos[argumentos_leidos + LUGAR_COMANDO] = strdup(linea_leida);
-        if(argumentos[argumentos_leidos] == NULL){
-            fprintf(stderr,"Ocurrio un error alocando memoria para el argumento: %s - errno: %s\n",linea_leida,strerror(errno));
-        }
-        else{
-            argumentos_leidos++;
-        }
-
-        if(argumentos_leidos == NARGS){
-            ejecutar_comando(argv[POS_COMANDO], argumentos);
-            limpiar_argumentos(argumentos);
-            argumentos_leidos = 0;
-        }
-        bytes_leidos = fscanf(stdin,"%[^\n]\n",linea_leida);
-    }
-    if(argumentos_leidos > 0){
-        ejecutar_comando(argv[POS_COMANDO], argumentos);
-        limpiar_argumentos(argumentos);
-    }
+    ejecutar_xargs(argv);
 
     return 0;
 }
