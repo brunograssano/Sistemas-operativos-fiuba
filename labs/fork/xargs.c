@@ -34,7 +34,7 @@ void ejecutar_comando(const char* comando, char* argumentos[]) {
 }
 
 void limpiar_argumentos(char* argumentos[]){
-    for (int i = 1; i < NARGS; i++) {
+    for (int i = 1; i < NARGS + LUGAR_COMANDO; i++) {
         free(argumentos[i]);
         argumentos[i] = NULL;
     }
