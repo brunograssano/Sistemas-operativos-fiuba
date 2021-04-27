@@ -67,6 +67,13 @@ int crear_pipe(int fd_pipe[2]){
     return resultado;
 }
 
+void esperar_proceso() {
+    int resultado = wait(NULL);
+    if(resultado < 0){
+        fprintf(stderr,"Ocurrio un error esperando a un proceso. PID: %d - errno: %s\n",getpid(),strerror(errno));
+    }
+}
+
 /* PRE y POST CONDICIONES
  * El file descriptor de lectura viene valido.
  */
@@ -116,7 +123,7 @@ int filtrar_numeros(const int fd_izquierdo[2]){
     while(se_puede_leer(fd_izquierdo[LECTURA],&numero,hay_error,termino_ciclo)){
         if(numero % primo != 0){
             if(!hay_filtro_nuevo){
-                int resultado = crear_fork();
+                resultado = crear_fork();
                 if (resultado < 0) {
                     hay_error = true;
                 }
@@ -146,9 +153,9 @@ int filtrar_numeros(const int fd_izquierdo[2]){
     else if(es_padre){
         cerrar_fd(fd_derecha[ESCRITURA]);
         cerrar_fd(fd_izquierdo[LECTURA]);
-    }
 
-    wait(NULL);
+        esperar_proceso();
+    }
 
     return 0;
 }
@@ -167,11 +174,10 @@ int generar_numeros(const int fd_derecho[2],const int numero_final){
     }
     cerrar_fd(fd_derecho[ESCRITURA]);
 
-    wait(NULL);
+    esperar_proceso();
 
     return 0;
 }
-
 
 /* PRE y POST CONDICIONES
  * Realizara el primer paso para empezar el programa. El numero final viene ya validado.
