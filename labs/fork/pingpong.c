@@ -11,6 +11,21 @@
 
 #define RANGO_VALORES 4
 
+void revisar_bytes(const int bytes);
+void escribir(const int fd_escritura,const int valor);
+void leer(const int fd_lectura, int* valor);
+void mostrar_mensajes_iniciales(const int fd_padre[2],const int fd_hijo[2]);
+void imprimir_mensaje_padre_inicial(const int fd_escritura,const int valor_envio,const int resultado_fork);
+void imprimir_mensajes_hijo(const int fd_lectura,const int fd_escritura,const int valor);
+void imprimir_mensaje_final(const int fd_lectura,const int valor,const int resultado_fork);
+void cerrar_fd(const int fd);
+int obtener_pipes(int fd_padre[2], int fd_hijo[2]);
+void cerrar_canales(const int fd_lectura,const int fd_escritura);
+int ejecutar_hijo(const int fd_padre[2],const int fd_hijo[2]);
+int ejecutar_padre(const int fd_padre[2],const int fd_hijo[2],const int resultado_fork);
+int enviar_mensajes(const int fd_padre[2],const int fd_hijo[2]);
+int enviar_mensajes(const int fd_padre[2],const int fd_hijo[2]);
+
 void revisar_bytes(const int bytes) {
     if (bytes != sizeof(int)){
         fprintf(stderr,"No se envio/leyo la cantidad correcta de bytes. Se esperaban %lu, se obtuvieron %d\n",sizeof(int),bytes);

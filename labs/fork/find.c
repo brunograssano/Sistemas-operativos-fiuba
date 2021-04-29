@@ -19,8 +19,15 @@
 #define DIRECTORIO_PADRE ".."
 #define DIVISOR_DIRECTORIOS "/"
 
+bool puedo_ir_a_directorio(const char* nombre_directorio);
+void imprimir_nombre(const char* direccion,const char* nombre_directorio);
+void armar_direccion(const char *direccion_padre, const char *nombre_directorio, char *direccion_completa);
+void cerrar_directorio(DIR *directorio);
+void iterar_directorio(char *(*funcion_busqueda)(const char *, const char *), const char *texto_a_buscar,
+                       const char direccion_padre[PATH_MAX], DIR *directorio);
 int ver_subdirectorios(char* (*funcion_busqueda)(const char*, const char*),const char *texto_a_buscar,
                        const char* nombre_directorio, int fd_directorio_padre,const char direccion_padre[PATH_MAX]);
+int buscar_texto(char* (*funcion_busqueda)(const char*, const char*), const char *texto_a_buscar);
 
 bool puedo_ir_a_directorio(const char* nombre_directorio){
     return strcmp(nombre_directorio,DIRECTORIO_ACTUAL)!=0 && strcmp(nombre_directorio,DIRECTORIO_PADRE)!=0;
@@ -44,6 +51,9 @@ void cerrar_directorio(DIR *directorio) {
     }
 }
 
+/* PRE y POST CONDICIONES
+ * El directorio que se recibe esta abierto.
+ */
 void iterar_directorio(char *(*funcion_busqueda)(const char *, const char *), const char *texto_a_buscar,
                        const char direccion_padre[PATH_MAX], DIR *directorio) {
 

@@ -17,6 +17,10 @@
 
 #define LARGO_ARGUMENTOS (NARGS + LUGAR_COMANDO + LUGAR_NULL_FINAL)
 
+void ejecutar_comando(const char* comando, char* argumentos[]);
+void limpiar_argumentos(char* argumentos[]);
+void ejecutar_xargs(char *argv[]);
+
 void ejecutar_comando(const char* comando, char* argumentos[]) {
     int resultado = fork();
     if (resultado < 0){
@@ -45,7 +49,7 @@ void ejecutar_xargs(char *argv[]) {
     int argumentos_leidos = 0;
 
     argumentos[0] = argv[POS_COMANDO];
-    
+
     int bytes_leidos = fscanf(stdin,"%[^\n]\n",linea);
     while(bytes_leidos > 0){
         argumentos[argumentos_leidos + LUGAR_COMANDO] = strdup(linea);

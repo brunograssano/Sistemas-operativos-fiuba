@@ -13,6 +13,22 @@
 #define ERROR -1
 #define POSICION_NUMERO 1
 
+void revisar_bytes(const int bytes);
+int escribir(const int fd_escritura,const int valor);
+int leer(const int fd_lectura, int* valor);
+void mostrar_primo(const int primo);
+int obtener_numero_final(const int cantidad_argumentos,char* argumentos[]);
+int crear_fork(void);
+int crear_pipe(int fd_pipe[2]);
+void esperar_proceso(void);
+int obtener_primo(const int fd_lectura);
+void cerrar_fd(const int fd);
+bool puedo_mandar_al_siguiente_filtro(const bool hay_error,const bool hay_filtro_nuevo,const bool termino_ciclo);
+bool se_puede_leer(const int fd_lectura,int* numero,const bool hay_error,const bool termino_ciclo);
+int filtrar_numeros(const int fd_izquierdo[2]);
+int generar_numeros(const int fd_derecho[2],const int numero_final);
+int iniciar_cadena(const int numero_final);
+
 void revisar_bytes(const int bytes) {
     if (bytes!=0 && bytes != sizeof(int)){
         fprintf(stderr,"No se envio/leyo la cantidad correcta de bytes. Se esperaban %lu, se obtuvieron %d\n",sizeof(int),bytes);
@@ -131,7 +147,7 @@ int filtrar_numeros(const int fd_izquierdo[2]){
                     cerrar_fd(fd_izquierdo[LECTURA]);
                     hay_filtro_nuevo = true;
                     termino_ciclo = true;
-                    filtrar_numeros(fd_derecha);
+                    hay_error = filtrar_numeros(fd_derecha);
                 }
                 else{
                     cerrar_fd(fd_derecha[LECTURA]);
@@ -157,7 +173,7 @@ int filtrar_numeros(const int fd_izquierdo[2]){
         esperar_proceso();
     }
 
-    return 0;
+    return hay_error;
 }
 
 /* PRE y POST CONDICIONES
