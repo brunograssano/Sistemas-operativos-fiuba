@@ -1,5 +1,5 @@
 # Enunciado
-## mv0 ☆
+## mv0
 
 *mv (move)* permite mover un archivo (regular o directorio) de un directorio
 a otro. El archivo no se mueve físicamente sino que sólo se renombra y 
