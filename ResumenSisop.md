@@ -171,13 +171,66 @@ la longitud de los segmentos en las paginas
 * La consistencia de la TLB la mantiene el OS
 * En multiprocesador, cada vez que una entrada se modifica de un CPU, se descarta el del resto. Se llama TLB Shootdown
 
-*WIP*
+## Scheduling o Planificacion de Procesos
+* Hay que tener una forma de poder elegir que proceso se ejecuta cuando se tienen varios. Se encarga un planificador.
+* Debe de ser lo mas eficiente posible, *tender a O(1)*.
+* La multiprogramacion permite que si algun proceso esta haciendo I/O, otro proceso haga computo.
+* Multiple Fixed Partitions: Se realizaban particiones de la memoria en procesos grandes y chicos.
+* Multiple Variable Partitions: Cada tarea entra a memoria y ocupa un espacio. Se puede realocar. Elimina fragmentacion interna y externa.
+* Workload: Es la carga de trabajo de un proceso corriendo en el sistema.
 
+### Metricas
+#### Turnaround
 
+T_*turnaround* = T_*completion* - T_*arrival*
 
+#### Response Time
 
+T_*response* = T_*firstrun* - T_*arrival*
 
+### Politicas
+#### FIFO
+* Se ejecuta el primero en llegar
+* La puede afectar el Convoy Effect
+* Non-preemptive (desalojo por parte del kernel)
 
+#### Shortest Job First - SJF
+* Ejecuta el trabajo mas corto primero
+* Sigue afectanto el Convoy Effect
+* Non-preemptive
+
+#### Shortest Time-to-Competion - STC
+* Si hay algun proceso que puede terminar antes ejecuta ese
+* Pre-emptive
+
+#### Round-Robin - RR
+* Se ejecutan los procesos en un *time slice*
+* Todos por igual
+* Necesita un buen *time slice*
+* Mejora *response time*, empeora *turnaround time*
+
+#### Multi-Level Feedback Queue - MLFQ
+* Intenta optimizar el *turnaround time* ejecutando la tarea mas corta primero
+* Intenta reducir el *response time*, haciendo que tenga un tiempo interactivo para los usuarios
+* Establece un conjunto de colas, cada una con una prioridad
+* Queremos
+  - Si una tarea no usa el CPU, tiene prioridad alta (proceso interactivo)
+  - Si usa mucho el CPU, prioridad baja 
+* Problemas que puede tener
+  - Starvation, demasiadas tareas interactivas, no se ejecutan las de computo
+  - Explotar el sistema por parte del programador, escribiendo a un archivo antes de que termine el *time slice*
+  - Programas dinamicos, pueden pasar de mucho computo a interactivos 
+* Reglas, A y B son 2 procesos
+  1. Si la prioridad de A es mayor a la de B, se ejecuta A, B no se ejecuta
+  2. Si A y B tienen igual prioridad, se ejecutan en Round Robin
+  3. Si entra un proceso nuevo, se le asigna la prioridad mas alta
+  4. Una vez usada su asignación de tiempo en un nivel dado, su prioridad se reduce independientemente de si renuncio al CPU. Esto evita que los programadores tomen ventaja del planificador.
+  5. Despues de un cierto tiempo se hace un **boost de prioridad**. Arregla el Starvation y los programas dinamicos.
+* La constante S (para hacer el boost) es una VOO-DOO CONSTANT, dificil de determinar
+
+#### Proportional Sharing
+
+*wip*
 
 
 
