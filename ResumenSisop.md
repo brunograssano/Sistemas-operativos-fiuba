@@ -229,11 +229,48 @@ T_*response* = T_*firstrun* - T_*arrival*
 * La constante S (para hacer el boost) es una VOO-DOO CONSTANT, dificil de determinar
 
 #### Proportional Sharing
+* Intenta que cada tarea obtenga un porcentaje de uso de tiempo del CPU.
+* Se conoce tambien como planificacion por loteria. Se realiza un sorteo para identificar quien se ejecuta a continuacion.
+* La vision es correcta desde el punto de vista probabilistico, pero no garantiza el resultado.
+* Se pueden manipular los boletos con algunos mecanismos:
+  - Ticket Currency: Serian distintos tipos de moneda
+  - Transferencia de boletos: Un proceso le transfiere a otro
+  - Inflacion: Aumenta o disminuye la cantidad de boletos que tenga un proceso de forma temporal
+* La implementacion es muy sencilla, requiere de:
+  - Un generador de numeros aleatorios que determine el ganador
+  - Una estructura para guardar la informacion de los procesos
+  - Un total de tickets  
+
+### En multiprocesador
+* Los planificadores no mejoran el rendimientod elas aplicaciones haciendolas multithreading, esto depende del programador.
+* Hay que tener cuidado con el cache, conviene mantener los procesos en el mismo CPU, ya que se arma un estado que conviene guardar. Se conose como Afinidad de Cache.
+* Hay que tener cuidado tambien entre varios CPUs, de que se mantenga la *coherencia de cache*. Se utiliza *Bus Snooping*
+
+#### Single Queue Multiprocessor Scheduling - SQMS
+* Forma mas facil, es simple y no requiere trabajo de adaptar la politica existente a mas de un CPU.
+* No es escalable, se pierde la afinida del cache
+* Hay que bloquear el acceso a la cola (locks), lo cual reduce el rendimiento.
+
+#### Multi-Queue Multiprocessor Scheduling - MQMS
+* Multiples colas, cada una sigue una disciplina de planificacion.
+* Es escalable.
+* Saca el problema de los bloqueos y del cache.
+* Provee afinidad del cache intrinsicamente, las tareas intentan mantenerse en el mismo CPU que fueron ejecutadas
+* Tiene el problema del **desbalance de ejecucion** (load imbalance), sucede cuando una CPU esta sobrecargada de procesos mientras que otra no.
+  - Se puede *arreglar* con la tecnica **migration** 
+
+### Completly Fair Scheduler - CFS
+* Es el planificador de Linux
+* No otorga un determinado *time slice* a un proceso, si no que otorga una proporcion del procesador dependiendo de la carga del sistema.
+* Intenta gastar poco tiempo en las decisiones de planificacion, lo consigue por el diseño y las estructuras de datos usadas.
+* Divide el tiempo entre los procesos compitiendo por el. **Vruntime**, es el tiempo que corrio cada proceso normalizado por el numero de procesos *runnable*.
+* No deben de correr muy poco, para no perder performance con los *context switches*.
+* No debe de cambiar poco, para mantener la equidad entre procesos, **fairness*
+* Maneja esto con algunos paramentros:
+  - **sched_latency**: Determina cuanto tiempo un proceso tiene que ejecutarse antes de considerar un switch. (time slice dinámico) Es dividido entre todos los procesos ejecutándose en la CPU
+  - **min_granularity**: Establece un valor mínimo del time-slice, asegurándose que nadie tenga menos de este tiempo de ejecución y de que no haya un overhead por el context switch
+* Tiene interrupciones periodicas para tomar decisiones.
+* Se pueden asignar prioridades, del -20 a +19. 0 es por defecto. -20 es mas prioridad, +19 menos.
+* Utiliza arboles rojo-negro
 
 *wip*
-
-
-
-
-
-
