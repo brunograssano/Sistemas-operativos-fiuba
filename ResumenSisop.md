@@ -1,6 +1,6 @@
 # Resumen de Sistemas Operativos
 
-## ¿Que es un sistema operativo?
+## ¿Qué es un sistema operativo?
 * Capa de software que maneja los recursos de la computadora para los usuarios y aplicaciones. Toma un recurso físico y lo transforma en algo mas general y fácil de usar.
 
 ### Roles
@@ -415,5 +415,63 @@ pthread_cond_signal(&cond);
   - No preemption, los recursos adquiridos no pueden ser desalojados por la fuerza (preempted).
   - Circular wait, un conjunto de threads que de forma circular cada uno reserva recursos que necesita otro thread. Se previene escribiendo un programa que no tenga esperas circulares (Ej. Agregando un orden*)
 
+## Sistema de archivos
+* Permite a un usuario organizar sus datos para que puedan persistir en el tiempo
+* *Una abstracción del sistema operativo que provee datos persistentes con un nombre*
+* El nombre esta para facilitar la identificación, pero no es necesario para tener un sistema de archivos.
 
+### Virtual File System - VFS
+* Subsistema del kernel que implementa las interfaces que tienen que ver con los archivos y el sistema de archivos provisto a los programas corriendo en modo usuario.
+* Los sistemas de archivos deben basarse en el VFS.
+* *VFS es el pegamento que habilita a las system calls como por ejemplo open(), read() y write() a funcionar sin que estas necesiten tener en cuenta el hardware subyacente*.
+* Provee un modelo común de archivos que pueda representar cualquier característica y comportamiento general de cualquier sistema de archivos.
 
+#### File System Abstraction Layer
+* Interfaz generica
+* Habilita a Linux soportar sistemas de archivos diferentes (incluso en caracteristicas y comportamiento)
+* Posible por el VFS
+* Define interfaces conceptualmente basicas y estructuras que cualquier sistema de archivos soporta
+* Cada *filesystem* se adapta al VFS
+* El resultado es que el kernel puede manejar muchos tipos de sistemas de archivos de forma fácil y limpia.
+
+#### Estructuras
+* Super Bloque: representa a todo un sistema de archivos, (*Ej. size, block size, la ubicación de las tablas de inodos*)
+* Inodo: representa un determinado archivo dentro de un sistema de archivos, metadata acerca de los archivos. *Ej. Tamaño, fecha de modificación, propietario, seguridad*
+* Dentry: representa una entrada de directorio, es un componente simple de un path, relaciona los inodos con los nombres
+* File: representa un archivo asociado a un determinado proceso. Los datos de un archivo están en la data región como bytes sin tipo.
+Los directiorios se tratan como archivos.
+
+#### Operaciones
+* super_operations: Son métodos que aplica el kernel sobre un determinado sistema de archivos. *Ej. write_inode() o sync_fs().*
+* inode_operations:  Son métodos que aplica el kernel sobre un archivo determinado. *Ej. create() o link().*
+* dentry_operations: Son métodos que se aplican directamente por el kernel a una determinada directory entry. *Ej. d_compare() o d_delete(), compara elimina directorios.*
+* file_operations: Son métodos que aplica el kernel sobre un archivo abierto por un proceso. *Ej. read() o write()*
+
+#### API
+Para archivos:
+* open()
+* creat()
+* close()
+* read()
+* write()
+* lseek()
+* dup()
+* link()
+* unlink()
+
+Para directorios:
+* mkdir()
+* rmdir()
+* chdir()
+* opendir()
+* readdir()
+* closedir()
+
+Sobre los metadatos:
+* stat()
+* access()
+* chmod()
+* chown()
+* umask()
+
+Se pueden ver ejemplos de usos de *syscalls* en los ejercicios realizados o en el lab fork.
