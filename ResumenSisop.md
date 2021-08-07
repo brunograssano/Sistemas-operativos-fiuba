@@ -299,9 +299,9 @@ T_*response* = T_*firstrun* - T_*arrival*
   ```C
   int pthread_create(pthread_t * thread, const pthread_att_t * att,void * (start_routine) (void *), void * arg)
   ```
-     1. thread: Es un puntero a la estructura de tipo pthread_t, que se utiliza para interactuar con el threads.
-     2. attr: Se utiliza para especificar los ciertos atributos que el thread deberia tener, por ejemplo, el tamaño del stack, o la prioridad de scheduling del thread. En la mayoria de los casos es NULL.
-     3. start_routine: Sea tal vez el argumento más complejo, pero no es más que un puntero a una función, en este caso que devuelve void.
+     1. thread: Es un puntero a la estructura de tipo pthread_t, que se utiliza para interactuar con el thread.
+     2. attr: Se utiliza para especificar los ciertos atributos que el thread deberia tener. *Ej. El tamaño del stack, o la prioridad de scheduling del thread.* En la mayoria de los casos es NULL.
+     3. start_routine: Un puntero a una función.
      4. arg: Es un puntero a void que debe apuntar a los argumentos de la función.
   
   ```C
@@ -348,6 +348,7 @@ Los threads
 * Por defecto comparten los descriptores de archivos
 * Por defecto comparten el contexto del filsystem
 * Por defecto comparten el manejo de señales
+
 Los Procesos
 * Por defecto no comparten memoria
 * Por defecto no comparten los descriptores de archivos
