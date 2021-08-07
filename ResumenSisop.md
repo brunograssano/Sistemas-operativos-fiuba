@@ -171,15 +171,15 @@ la longitud de los segmentos en las paginas
 * La consistencia de la TLB la mantiene el OS
 * En multiprocesador, cada vez que una entrada se modifica de un CPU, se descarta el del resto. Se llama TLB Shootdown
 
-## Scheduling o Planificacion de Procesos
+## Scheduling o Planificación de Procesos
 * Hay que tener una forma de poder elegir que proceso se ejecuta cuando se tienen varios. Se encarga un planificador.
-* Debe de ser lo mas eficiente posible, *tender a O(1)*.
-* La multiprogramacion permite que si algun proceso esta haciendo I/O, otro proceso haga computo.
+* Debe de ser lo más eficiente posible, *tender a O(1)*.
+* La multiprogramación permite que si algún proceso esta haciendo I/O, otro proceso haga cómputo.
 * Multiple Fixed Partitions: Se realizaban particiones de la memoria en procesos grandes y chicos.
-* Multiple Variable Partitions: Cada tarea entra a memoria y ocupa un espacio. Se puede realocar. Elimina fragmentacion interna y externa.
+* Multiple Variable Partitions: Cada tarea entra a memoria y ocupa un espacio. Se puede realocar. Elimina fragmentación interna y externa.
 * Workload: Es la carga de trabajo de un proceso corriendo en el sistema.
 
-### Metricas
+### Métricas
 #### Turnaround
 
 T_*turnaround* = T_*completion* - T_*arrival*
@@ -188,19 +188,19 @@ T_*turnaround* = T_*completion* - T_*arrival*
 
 T_*response* = T_*firstrun* - T_*arrival*
 
-### Politicas
+### Políticas
 #### FIFO
 * Se ejecuta el primero en llegar
 * La puede afectar el Convoy Effect
 * Non-preemptive (desalojo por parte del kernel)
 
 #### Shortest Job First - SJF
-* Ejecuta el trabajo mas corto primero
-* Sigue afectanto el Convoy Effect
+* Ejecuta el trabajo más corto primero
+* Sigue afectando el Convoy Effect
 * Non-preemptive
 
 #### Shortest Time-to-Competion - STC
-* Si hay algun proceso que puede terminar antes ejecuta ese
+* Si hay algún proceso que puede terminar antes ejecuta ese
 * Pre-emptive
 
 #### Round-Robin - RR
@@ -210,67 +210,210 @@ T_*response* = T_*firstrun* - T_*arrival*
 * Mejora *response time*, empeora *turnaround time*
 
 #### Multi-Level Feedback Queue - MLFQ
-* Intenta optimizar el *turnaround time* ejecutando la tarea mas corta primero
+* Intenta optimizar el *turnaround time* ejecutando la tarea más corta primero
 * Intenta reducir el *response time*, haciendo que tenga un tiempo interactivo para los usuarios
 * Establece un conjunto de colas, cada una con una prioridad
 * Queremos
-  - Si una tarea no usa el CPU, tiene prioridad alta (proceso interactivo)
-  - Si usa mucho el CPU, prioridad baja 
+  - Si una tarea no usa la CPU, tiene prioridad alta (proceso interactivo)
+  - Si usa mucho la CPU, prioridad baja
 * Problemas que puede tener
-  - Starvation, demasiadas tareas interactivas, no se ejecutan las de computo
+  - Starvation, demasiadas tareas interactivas, no se ejecutan las de cómputo
   - Explotar el sistema por parte del programador, escribiendo a un archivo antes de que termine el *time slice*
-  - Programas dinamicos, pueden pasar de mucho computo a interactivos 
+  - Programas dinámicos, pueden pasar de mucho cómputo a interactivos
 * Reglas, A y B son 2 procesos
   1. Si la prioridad de A es mayor a la de B, se ejecuta A, B no se ejecuta
   2. Si A y B tienen igual prioridad, se ejecutan en Round Robin
-  3. Si entra un proceso nuevo, se le asigna la prioridad mas alta
+  3. Si entra un proceso nuevo, se le asigna la prioridad más alta
   4. Una vez usada su asignación de tiempo en un nivel dado, su prioridad se reduce independientemente de si renuncio al CPU. Esto evita que los programadores tomen ventaja del planificador.
-  5. Despues de un cierto tiempo se hace un **boost de prioridad**. Arregla el Starvation y los programas dinamicos.
-* La constante S (para hacer el boost) es una VOO-DOO CONSTANT, dificil de determinar
+  5. Después de un cierto tiempo se hace un **boost de prioridad**. Arregla el Starvation y los programas dinámicos.
+* La constante S (para hacer el boost) es una VOO-DOO CONSTANT, difícil de determinar
 
 #### Proportional Sharing
 * Intenta que cada tarea obtenga un porcentaje de uso de tiempo del CPU.
-* Se conoce tambien como planificacion por loteria. Se realiza un sorteo para identificar quien se ejecuta a continuacion.
-* La vision es correcta desde el punto de vista probabilistico, pero no garantiza el resultado.
+* Se conoce también como planificación por lotería. Se realiza un sorteo para identificar quien se ejecuta a continuación.
+* La visión es correcta desde el punto de vista probabilístico, pero no garantiza el resultado.
 * Se pueden manipular los boletos con algunos mecanismos:
   - Ticket Currency: Serian distintos tipos de moneda
   - Transferencia de boletos: Un proceso le transfiere a otro
-  - Inflacion: Aumenta o disminuye la cantidad de boletos que tenga un proceso de forma temporal
-* La implementacion es muy sencilla, requiere de:
-  - Un generador de numeros aleatorios que determine el ganador
-  - Una estructura para guardar la informacion de los procesos
-  - Un total de tickets  
+  - Inflación: Aumenta o disminuye la cantidad de boletos que tenga un proceso de forma temporal
+* La implementación es muy sencilla, requiere de:
+  - Un generador de números aleatorios que determine el ganador
+  - Una estructura para guardar la información de los procesos
+  - Un total de tickets
 
 ### En multiprocesador
-* Los planificadores no mejoran el rendimientod elas aplicaciones haciendolas multithreading, esto depende del programador.
-* Hay que tener cuidado con el cache, conviene mantener los procesos en el mismo CPU, ya que se arma un estado que conviene guardar. Se conose como Afinidad de Cache.
-* Hay que tener cuidado tambien entre varios CPUs, de que se mantenga la *coherencia de cache*. Se utiliza *Bus Snooping*
+* Los planificadores no mejoran el rendimiento delas aplicaciones haciéndolas multithreading, esto depende del programador.
+* Hay que tener cuidado con el caché, conviene mantener los procesos en el mismo CPU, ya que se arma un estado que conviene guardar. Se conoce como Afinidad de Caché.
+* Hay que tener cuidado también entre varios CPUs, de que se mantenga la *coherencia de caché*. Se utiliza *Bus Snooping*
 
 #### Single Queue Multiprocessor Scheduling - SQMS
-* Forma mas facil, es simple y no requiere trabajo de adaptar la politica existente a mas de un CPU.
-* No es escalable, se pierde la afinida del cache
+* Forma más fácil, es simple y no requiere trabajo de adaptar la política existente a más de una CPU.
+* No es escalable, se pierde la afinidad del caché
 * Hay que bloquear el acceso a la cola (locks), lo cual reduce el rendimiento.
 
 #### Multi-Queue Multiprocessor Scheduling - MQMS
-* Multiples colas, cada una sigue una disciplina de planificacion.
+* Múltiples colas, cada una sigue una disciplina de planificación.
 * Es escalable.
-* Saca el problema de los bloqueos y del cache.
-* Provee afinidad del cache intrinsicamente, las tareas intentan mantenerse en el mismo CPU que fueron ejecutadas
-* Tiene el problema del **desbalance de ejecucion** (load imbalance), sucede cuando una CPU esta sobrecargada de procesos mientras que otra no.
-  - Se puede *arreglar* con la tecnica **migration** 
+* Saca el problema de los bloqueos y del caché.
+* Provee afinidad del caché intrínsecamente, las tareas intentan mantenerse en el mismo CPU que fueron ejecutadas
+* Tiene el problema del **desbalance de ejecución** (load imbalance), sucede cuando una CPU está sobrecargada de procesos mientras que otra no.
+  - Se puede *arreglar* con la técnica **migration**
 
 ### Completly Fair Scheduler - CFS
 * Es el planificador de Linux
-* No otorga un determinado *time slice* a un proceso, si no que otorga una proporcion del procesador dependiendo de la carga del sistema.
-* Intenta gastar poco tiempo en las decisiones de planificacion, lo consigue por el diseño y las estructuras de datos usadas.
-* Divide el tiempo entre los procesos compitiendo por el. **Vruntime**, es el tiempo que corrio cada proceso normalizado por el numero de procesos *runnable*.
+* No otorga un determinado *time slice* a un proceso, sino que otorga una proporción del procesador dependiendo de la carga del sistema.
+* Intenta gastar poco tiempo en las decisiones de planificación, lo consigue por el diseño y las estructuras de datos usadas.
+* Divide el tiempo entre los procesos compitiendo por él. **Vruntime**, es el tiempo que corrió cada proceso normalizado por el número de procesos *runnable*.
 * No deben de correr muy poco, para no perder performance con los *context switches*.
 * No debe de cambiar poco, para mantener la equidad entre procesos, **fairness*
-* Maneja esto con algunos paramentros:
+* Maneja esto con algunos parámetros:
   - **sched_latency**: Determina cuanto tiempo un proceso tiene que ejecutarse antes de considerar un switch. (time slice dinámico) Es dividido entre todos los procesos ejecutándose en la CPU
   - **min_granularity**: Establece un valor mínimo del time-slice, asegurándose que nadie tenga menos de este tiempo de ejecución y de que no haya un overhead por el context switch
-* Tiene interrupciones periodicas para tomar decisiones.
-* Se pueden asignar prioridades, del -20 a +19. 0 es por defecto. -20 es mas prioridad, +19 menos.
-* Utiliza arboles rojo-negro
+* Tiene interrupciones periódicas para tomar decisiones.
+* Se pueden asignar prioridades, del -20 a +19. 0 es por defecto. -20 es más prioridad, +19 menos.
+* Utiliza árboles rojo-negro
+  1. El nodo más a la izquierda es elegido, es el que menos tiempo se ejecutó
+  2. Si el proceso termina, se elimina del árbol
+  3. Si alcanza su máximo tiempo de ejecución, o para su ejecución voluntariamente, se reinserta en el árbol en base al nuevo tiempo
+  4. Repetir para el nodo más a la izquierda
 
-*wip*
+* Su API vendria a ser *nice()* y *sched_yield()*
+
+## Concurrencia
+* Un *thread* es una secuencia de ejecución atomiza que representa una tarea planificable de ejecución. (dentro de un programa - diferencia con un proceso)
+  - Secuencia de ejecución atómica porque cada thread ejecuta una secuencia de instrucciones, un bloque de código
+  - Tarea planificable, ya que el OS decide cuando ejecutarlo, suspenderlo, o continuarlo
+* No confundir concurrencia con paralelismo.
+  - Concurrencia es pretender estar haciendo varias cosas a la vez, pero siempre se le dedica tiempo a una
+  - Paralelismo es realizar varias a la vez 
+* Cuantan con varias caracteristicas
+  - Thread ID
+  - Conjunto de valores de registros
+  - Stack propio
+  - Politica y prioridad de ejecucion
+  - *errno* propio
+  - Datos especificos del thread
+* Es necesaria alguna forma de planificar los *threads*, pueden ejecutarse de forma cooperativa (no hay interrupción a menos que se solicite), o de forma preemptiva (puede salir de running en cualquier momento)
+* API de *pthread*
+  
+  ```C
+  int pthread_create(pthread_t * thread, const pthread_att_t * att,void * (start_routine) (void *), void * arg)
+  ```
+     1. thread: Es un puntero a la estructura de tipo pthread_t, que se utiliza para interactuar con el threads.
+     2. attr: Se utiliza para especificar los ciertos atributos que el thread deberia tener, por ejemplo, el tamaño del stack, o la prioridad de scheduling del thread. En la mayoria de los casos es NULL.
+     3. start_routine: Sea tal vez el argumento más complejo, pero no es más que un puntero a una función, en este caso que devuelve void.
+     4. arg: Es un puntero a void que debe apuntar a los argumentos de la función.
+  
+  ```C
+  int pthread_join(pthread_t thread, void **value_ptr )
+  ```
+  1. thread es el thread por el que hay que esperar y es de tipo pthread_t.
+  2. value_ptr es el puntero al valor esperado de retorno.
+
+Tener en cuenta que:
+  - Si la función no devuelve nada NULL.
+  - Si solo devuelve un valor no hay que hacer el empaquetado de los punteros.
+  - Nunca devolver nada que se encuentre allocated dentro del thread.
+
+Otras funciones de la API:
+```C
+pthread_exit(status);
+phtread_cancel(thread);
+pthread_detach(threadid);
+```
+
+* Los *threads* se usan porque pueden acelerar el rendimiento del programa
+* Si se realiza I/O, otro puede realizar otras operaciones
+* Hay que tener cuidado con los recursos compartidos
+
+### Estado Per-Thread y Threads Control Block
+Cada thread debe tener una estructura que represente su estado. Esta estructura se denomina
+Thread Control Block (TCB), se crea una entrada por cada thread. La TCB almacena el estado
+per-thread de un thread. Este bloque debe almacenar el puntero al stack del thread y una copia
+de los registros en el procesador. De esta forma el sistema operativo puede crear, parar, y volver
+a iniciar múltiples threads sin problemas de estado de cada uno.
+  
+De forma compartida se debe guardar también información, el código, variables globales, variables del heap.
+
+### Estados de un thread
+* INIT
+* READY
+* RUNNING
+* WAITING
+* FINISHED
+
+### Diferencias con procesos
+Los threads
+* Por defecto comparten memoria
+* Por defecto comparten los descriptores de archivos
+* Por defecto comparten el contexto del filsystem
+* Por defecto comparten el manejo de señales
+Los Procesos
+* Por defecto no comparten memoria
+* Por defecto no comparten los descriptores de archivos
+* Por defecto no comparten el contexto del filsystem
+* Por defecto no comparten el manejo de señales
+
+Linux no diferencia entre procesos y threads, son una tarea ejecutándose.
+* Son creados a través de la *syscall* *clone()*, se le pasan diferentes flags dependiendo de lo que se quiera compartir
+
+### Sincronizacion
+* Se puede ejecutar de forma independiente (no comparten recursos), o cooperativa (comparten recursos)
+* Hay que tener cuidado en el caso cooperativo, la ejecución del programa depende de como se intercale la ejecución. No es determinístico
+* Las **Race Conditions** se dan cuando el resultado del programa depende de como se intercalaron las operaciones de los *threads*
+* Las **Operaciones Atómicas** son aquellas que no pueden dividirse en otras al momento del ensamblado. Garantizan la ejecución sin tener que intercalarse
+* Los programas tienen que ser
+  - **Safety**: seguros, nada malo va a pasar
+  - **Liveness**: si algo va a pasar, tiene que ser bueno
+* Los **Locks** son variables que permiten la sincronización mediante la exclusión mutua, si un thread lo tiene, ningún otro lo puede tener.
+  - Están asociados a estados o partes de código
+  - Estados: *busy* y *free*, su cambio y verificación son atómicos
+* La Sección Crítica es aquella sección del código fuente que se necesita que se ejecute en forma atómica. Para ello esta sección se encierra dentro de un lock.
+* El sistema operativo no puede inferir donde poner un lock en un programa
+
+La API de *pthreads*
+```C
+pthread_mutex_t lock;
+rc=pthread_mutex_init(&lock,NULL);
+assert(rc==0);
+
+pthread_mutex_lock(&lock);
+x=x+1;
+pthread_mutex_unlock(&lock);
+```
+
+* Las **Condition Variables** permiten que un *thread* espere a otro *thread* para tomar una acción, es más eficiente que mandarlos a girar (*spinning*) en un ciclo. Se usan para dar algún tipo de señal entre *treads*
+
+```C
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+```
+
+```C
+pthread_mutex_lock(&lock);
+while (ready == 0)
+  pthread_cond_wait(&cond, &lock);
+pthread_mutex_unlock(&lock);
+```
+
+```C
+pthread_mutex_lock(&lock);
+ready = 1;
+pthread_mutex_unlock(&lock);
+pthread_cond_signal(&cond);
+```
+
+### Errores comunes en concurrencia
+* Non Deadlocks
+  - Atomicity violation: “El deseo de la serialización entre múltiples accesos a memoria es violado”
+  - Order Violation: “El orden deseado entre accesos a memoria se ha cambiado”
+
+* Deadlocks
+  - Ocurre cuando dos o más threads se bloquean entre sí.
+  - Se puede dar cuando uno obtiene el lock, y por algun motivo nunca lo libera (exclusión mutua).
+  - Hold and wait, un thread mantiene un recurso reservado para sí mismo mientras espera que se de alguna condición. Se previene haciendo que los locks se tomen en forma atómica.
+  - No preemption, los recursos adquiridos no pueden ser desalojados por la fuerza (preempted).
+  - Circular wait, un conjunto de threads que de forma circular cada uno reserva recursos que necesita otro thread. Se previene escribiendo un programa que no tenga esperas circulares (Ej. Agregando un orden*)
+
+
+
