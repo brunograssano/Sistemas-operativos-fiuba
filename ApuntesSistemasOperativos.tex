@@ -53,7 +53,7 @@
 El presente archivo contiene los apuntes que fueron tomados a lo largo de la cursada de la materia sistemas operativos (7508) en el curso del profesor Méndez. Esta formado por parte de los mismos apuntes del curso, de anotaciones tomadas durante la clase, y en algunas partes agregue notas de la bibliografía. 
 
 \subsection*{Recomendaciones}
-Básicamente la de todas las materias, llevarla al día.
+Llevarla al día.
 
 Para las teóricas conviene ir ya con el tema leído desde el \href{https://fisop.github.io/apunte/}{apunte de Mendez}, complementa también tratar de seguir las clases con alguno de los libros de la bibliografía (Sección \ref{sec:bibliografia}), personalmente fui leyendo el Arpaci, bastante claro y ordenado, los otros no tuve el tiempo de mirarlos durante la cursada.
 
@@ -101,7 +101,7 @@ El usuario lo que puede 'ver' son tres partes: el sistema de archivos, el entorn
 \subsubsection*{Sistema de archivos}
 
 En UNIX es una estructura jerárquica que permite el tratamiento consistente entre diferentes archivos. Permite crear, borrar, proteger o modificar archivos (que crezcan en tamaño de forma dinámica).
-Esta organizado como un árbol con una una raíz (/). Cada nodo no hoja del sistema de archivos se denomina directorio de archivos, y las hojas del árbol pueden ser a su vez archivos, directorios, o archivos especiales. Cada uno de estos tiene un nombre dado por el camino (path) para localizarlo en la estructura.
+Esta organizado como un árbol con una raíz (/). Cada nodo no hoja del sistema de archivos se denomina directorio de archivos, y las hojas del árbol pueden ser a su vez archivos, directorios, o archivos especiales. Cada uno de estos tiene un nombre dado por el camino (path) para localizarlo en la estructura.
 
 \subsubsection*{Entorno de procesamiento}
 Un programa es un archivo ejecutable. Un proceso es una instancia de un programa en ejecución. Cada programa puede tener muchos procesos ejecutándose a la vez, no hay un limite lógico para la cantidad.
@@ -190,7 +190,7 @@ El IOPL son los bits que se agregaron para poder identificar en que modo (ring) 
 \end{itemize}
 
 \subsection*{Transferencias}
-Existen tres formas para cambiar de modo usuario a modo kernel: con interrupciones (evento externo), con excepciones del procesador ()evento interno, y mediante la ejecución de \textit{system calls} (evento intencional). (6 en total, de usuario a kernel, y de kernel a usuario)
+Existen tres formas para cambiar de modo usuario a modo kernel: con interrupciones (evento externo), con excepciones del procesador (evento interno), y mediante la ejecución de \textit{system calls} (evento intencional). (6 en total, de usuario a kernel, y de kernel a usuario)
 
 \subsubsection*{Interrupciones}
 
@@ -323,9 +323,9 @@ Esta ley establece que aproximadamente cada diez años una forma nueva de comput
 
 
 \subsection*{Arquitectura x86: Hardware}
-El primer modelo de programación se denomino \textit{program visible} debido a que sus registros utilizados durante la ejecución del programa y son especificados por las instrucciones. \textit{Ej. ADD dx,cs}
+El primer modelo de programación se denomino \textit{program visible} debido a que sus registros utilizados durante la ejecución del programa son especificados por las instrucciones. \textit{Ej. ADD dx,cs}
 
-Existe otros tipos de registros que son \textit{program invisible} ya que no son direccionables directamente en tiempo de ejecución del programa. Únicamente a partir del 80286 existen registros program-invisible, utilizados exclusivamente para control y para operar con memoria protegida, entre otras cosas.
+Existe otros tipos de registros que son \textit{program invisible} ya que no son direccionables directamente en tiempo de ejecución del programa. Únicamente a partir del procesador 80286 existen registros program-invisible, utilizados exclusivamente para control y para operar con memoria protegida, entre otras cosas.
 
 \begin{figure}[!htb]
     \centering
@@ -348,7 +348,7 @@ La porción del stack para realizar esto se llama \textit{stack frame}. La estru
 El conjunto de registros de un procesador es una fuente limitada de recursos que son compartidos por las distintas funciones que se están ejecutando. Cuando se ejecuta una función, hay que asegurarse que la función que llama (caller) a otra función (callee), esta ultima no sobre escriba todos los valores de los registros, ya que algunos de estos van a ser necesitados por la función llamadora. Por lo tanto se define una convención. 
 
 \begin{itemize}
-    \item Los registros \%EAX, \%EDX y \%ECX son denominados Caller-save, es decir, cuando Q es llamado por P, el llamador puede sobre-escribir esos registros sin miedo de destruir datos de P.
+    \item Los registros \%EAX, \%EDX y \%ECX son denominados Caller-save, es decir, cuando Q es llamado por P, el llamado puede sobre-escribir esos registros sin miedo de destruir datos de P.
     \item Los registros \%EBX, \%ESI y \%EDI son denominados Callee-save, esto significa que Q debe guardar los valores de estos registros en la pila antes de sobrescribirlos y restaurarlos antes de retornar
 \end{itemize}
 
@@ -380,8 +380,6 @@ Un programa es un archivo que tiene toda la información de como construir un pr
 \end{itemize}
 
 Un programa es algo 'sin vida', un conjunto de instrucciones y datos que esperan en algún lugar del disco para saltar a la acción. El OS es quien lo toma y lo transforma en algo útil, mediante el Kernel.
-
-\textit{a.out es assembly output}
 
 El Kernel realiza lo siguiente.
 \begin{enumerate}
@@ -751,7 +749,7 @@ El registro bound (limite o segmento), es verificado antes de realizar alguna op
     \includegraphics[width=0.8\textwidth]{ImagenesApunte/base_bound.jpg}
 \end{figure}
 
-Esto forma parte edd la MMU (Memory Managment Unit)
+Esto forma parte de la MMU (Memory Managment Unit)
 
 \subsubsection*{Tabla de segmentos}
 El problema de Base and Bound es que se tiene un solo registro base y un solo segmento. Se mejora teniendo un arreglo de pares base-segmento por cada proceso,  donde cada entrada controla una parte del virtual address space.
@@ -1011,7 +1009,7 @@ El concepto se conoce también como planificación por lotería. Cada cierto tie
 
 El concepto que subyace en el algoritmo de planificación por lotería es muy básico: los boletos, son utilizados para representar cuanto se comparte de un determinado recurso para un determinado proceso. El porcentaje de los boletos que un proceso tiene es el porcentaje de cuanto va a compartir el recurso en cuestión.
 
-\textit{Ej. Suponiendo que existen dos procesos A y B y que un boleto ganador esta entre 0 y 99 podría suponerse que el proceso A tiene el 75\% de posibilidades de recibir el recurso y el proceso B tiene el 25\% restante. En términos de boletos de la lotería el proceso A tendría los boletos del 0 al 74 y el proceso B tendría los boletos del 75 al 99. UN boleto ganador determina si A o B son ejecutados, entonces el planificador. Entonces por ejemplo de boletos ganadores de la lotería podrían ser: 63 85 70 39 76 17 29 41 36 39 10 99 68 83 63 62 43 0 49 49. Entonces el resultado de la planificación es:
+\textit{Ej. Suponiendo que existen dos procesos A y B y que un boleto ganador esta entre 0 y 99 podría suponerse que el proceso A tiene el 75\% de posibilidades de recibir el recurso y el proceso B tiene el 25\% restante. En términos de boletos de la lotería el proceso A tendría los boletos del 0 al 74 y el proceso B tendría los boletos del 75 al 99. Un boleto ganador determina si A o B son ejecutados. Entonces por ejemplo de boletos ganadores de la lotería podrían ser: 63 85 70 39 76 17 29 41 36 39 10 99 68 83 63 62 43 0 49 49. Entonces el resultado de la planificación es:
 A B A A B A A A A A B A B A A A A A A}
 
 Utilizar la aleatoriedad lleva a una correcta visión desde el punto de vista probabilístico pero no garantiza que esa proporción deseada se lleve a cabo. De hecho en el ejemplo anterior no sucede que se ejecute 25 75. No se garantiza que salgan esos valores.
@@ -1031,7 +1029,7 @@ Lo interesante de este método es la facilidad con la que se puede implementar. 
 \end{itemize}
 
 \begin{minted}{C}
-    // counter: used to track if we’ve found the winner yet
+    // counter: used to track if we've found the winner yet
     int counter = 0;
     
     // winner: use some call to a random number generator to get a value,
@@ -1048,7 +1046,7 @@ Lo interesante de este método es la facilidad con la que se puede implementar. 
             break; // found the winner
         current = current->next;
     }
-    // ’current’ is the winner: schedule it...
+    // 'current' is the winner: schedule it...
 \end{minted}
 
 \subsection*{Planificación multiprocesador}
@@ -1202,12 +1200,12 @@ Xv6 multiplexa cambiando en cada procesador un proceso por otro en dos ocasiones
 Esto crea la ilusión de que cada proceso tiene su propia CPU, entre otras cosas. Este cambio entre procesos se traduce en un cambio entre modo usuario - modo kernel - modo usuario .
 
 \begin{minted}{C}
-      // Per−CPU process scheduler.
+      // Per-CPU process scheduler.
       // Each CPU calls scheduler() after setting itself up.
       // Scheduler never returns. It loops, doing:
-      // − choose a process to run
-      // − switch to start running that process
-      // − eventually that process transfers control
+      // - choose a process to run
+      // - switch to start running that process
+      // - eventually that process transfers control
       // via swtch back to the scheduler.
       void
       scheduler(void)
@@ -1237,7 +1235,7 @@ Esto crea la ilusión de que cada proceso tiene su propia CPU, entre otras cosas
                 switchkvm();
                 
                 // Process is done running for now.
-                // It should have changed its p−>state before coming back.
+                // It should have changed its p->state before coming back.
                 c->proc = 0;
             }
             release(&ptable.lock);
@@ -1722,7 +1720,7 @@ Algunos ejemplos posibles son, una cola o un contador. Ejemplo sacado del Arpaci
 \end{itemize}
 
 \subsubsection*{Deadlocks}
-Ocurre cuando dos o mas threads se bloquean entre si. Se puede dar cuando uno obtiene el lock, y por algun motivo nunca lo libera (exclusión mutua). Hold and wait, un thread mantiene un recurso reservado para si mismo mientras espera que se de alguna condición. No preemption, los recursos adquiridos no pueden ser desalojados por la fuerza (preempted). Circular wait, un conjunto de threads que de forma circular cada uno reserva recursos que necesita otro thread.
+Ocurre cuando dos o mas threads se bloquean entre si. Se puede dar cuando uno obtiene el lock, y por algún motivo nunca lo libera (exclusión mutua). Hold and wait, un thread mantiene un recurso reservado para si mismo mientras espera que se de alguna condición. No preemption, los recursos adquiridos no pueden ser desalojados por la fuerza (preempted). Circular wait, un conjunto de threads que de forma circular cada uno reserva recursos que necesita otro thread.
 
 La circular wait se previene escribiendo código que nunca induzca a esperas circulares, por ejemplo con el establecimiento de un orden total, este orden asegurará que no se caiga en espera circular.
 
@@ -2305,11 +2303,53 @@ Es eficiente para almacenar y transferir repositorios grandes.
 
 Si se crea un archivo muy grande y se borra, sigue referenciado, por lo que el repositorio va a seguir pesando eso. Por eso es malo subir imágenes/vídeos grandes a git si no son realmente necesarios.
 
+\subsection{Contenerización \& Docker}
+
+¿Que pasa si tengo 2 procesos corriendo en la misma maquina, cada uno con su contexto y memoria, y quiero correr dos aplicaciones distintas que requieren cierta particularidad?
+Por ejemplo 2 aplicaciones Java que requieren JVMs distintas, o aplicaciones que escuchan al mismo puerto (ven la misma interfaz de red). Son recursos compartidos. Otro ejemplo es compilar una aplicación C que depende de bibliotecas especificas, distintas a las del sistema
+
+\medskip
+La motivación es que no hay aislamiento a nivel proceso. Cada proceso tiene aislado su memoria, registros de CPU, tabla de archivos abiertos.
+
+\medskip
+Dentro del contenedor estarían corriendo procesos específicos.
+
+\medskip
+El proceso lanzado en Docker tiene una visión completamente distinta del sistema del resto de los procesos. Este contenedor, espacio abstraído no deja de ser un proceso en el fondo. Es un proceso con aislamientos mas fuertes que los demás.
 
 
+\subsubsection*{¿Que es la contenerización?}
+Es un proceso normal corriendo en un kernel normal que tiene un control sobre la visibilidad y acceso a recursos del sistema, es un mejor aislamiento entre procesos dentro de un mismo host. Es una forma de virtualización ligera y rápida.
+
+\medskip
+\subsubsection*{¿Por que nos conviene contenerizar?}
+Nos conviene para empaquetar dependencias, dando ambientes de desarrollo y producción reproducibles. Puede correr cierto paquete sin tenerlo instalado en la maquina nativa, un filesystem distinto.
+
+\medskip
+También otorga un mayor control del uso de recursos (limites y cuotas), para la visibilidad y el aislamiento y seguridad. Si alguien compromete un servidor en un Container, no afecta a los recursos del resto de la maquina.
+
+\medskip
+Además son fáciles de provisionar y movilizar.
+
+\subsubsection*{¿Diferencias con una maquina virtual?}
+
+Una maquina virtual simula hardware, es mucho mas pesado y lento que provee un aislamiento mayor, donde cada VM tiene su propio SO.
+
+\medskip
+Un Container es un aislamiento a nivel OS mas ligero y rápido, ya que comparte recursos del SO por debajo. Se pueden tener muchos contenedores sobre un mismo host.
+
+% imagen con capas de abstracción entre VM y container
 
 
+\subsubsection*{¿Cómo funciona?}
 
+Tiene 4 pilares. Aplican al kernel de Linux.
+\begin{itemize}
+    \item Namespaces: indica que recursos se pueden ver, mismo concepto que en algún lenguaje que los use. \textit{Ej. C++}. Hay un namespace para cada tipo de recurso. Procesos en distintos namespaces ven distintos recursos. Procesos en distintos namespaces ven distintos recursos, estos son creados durante el fork (flags para la syscall que esta detrás - clone). Los namespaces se pueden referenciar como archivos. Áreas con un namespace son pid, stack de red, nombre de host y dominio, directorios y filesystems montados, ipc, distinto conjunto de usuarios y grupos, y la noción del tiempo del reloj del sistema. Cada namespace tiene una serie de estándares distintos sobre como se inicializa.
+    \item Control groups: definen que recursos se pueden usar. (CPU, memoria, red, dispositivos) Permite al kernel tomar acciones cuando un proceso se excede de recursos. Existen distintas jerarquías dependiendo del recurso. La estructura que tienen es un directorio para cada recurso. Cada recurso es una jerarquía, cada jerarquía tiene uno o mas cgroups. Cada cgroup puede tener procesos. \textit{Ej. Limitar la cantidad de memoria que pide un proceso.}
+    \item Copy on Write: para un manejo eficiente del filesystem. No es parte del kernel, sino que es soportado por el filesystem. Varios containers pueden tener una copia de los mismos  archivos. Utiliza mount points.
+    \item Capabilities: es un tema de granularidad de permisos, acceso a ciertas syscalls. \textit{Ej. No quiero que estos procesos tengan accesos a la syscall para reiniciar el sistema.} No tiene nada que ver con un usuario root. Son una serie de bits asociados a un proceso que indican que puede o no hacer un proceso. Se heredan, pero se pueden quitar y agregar.
+\end{itemize}
 
 \newpage
 
